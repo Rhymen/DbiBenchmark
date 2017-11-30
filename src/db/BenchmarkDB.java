@@ -9,18 +9,18 @@ public class BenchmarkDB implements AutoCloseable {
 
     private static final String CREATE_BRANCH_SQL =
             "INSERT INTO branches" +
-            "(branchid, branchname, balance, address)" +
-            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "(branchid, branchname, balance, address)" +
+                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
     private static final String CREATE_ACCOUNT_SQL =
             "INSERT INTO accounts" +
-            "(accid, name, balance, branchid, address)" +
-            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "(accid, name, balance, branchid, address)" +
+                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
     private static final String CREATE_TELLER_SQL =
             "INSERT INTO tellers" +
-            "(tellerid, tellername, balance, branchid, address)" +
-            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "(tellerid, tellername, balance, branchid, address)" +
+                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
     private Connection conn;
     private PreparedStatement createBranchStatement;
@@ -39,15 +39,15 @@ public class BenchmarkDB implements AutoCloseable {
             }
 
             for (int i = 1, l = n * 100000; i <= l; i++) {
-                int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createAccount(i, branchId, i == l);
+                int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
+                createAccount(i, branchId, i % Integer.MAX_VALUE == 0 || i == l);
             }
 
             for (int i = 1, l = n * 10; i <= l; i++) {
-                int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
+                int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
                 createTeller(i, branchId, i == l);
             }
-        } catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -61,7 +61,7 @@ public class BenchmarkDB implements AutoCloseable {
         createBranchStatement.addBatch();
 
         if (commit) {
-            createBranchStatement.executeLargeBatch();
+            createBranchStatement.executeBatch();
         }
     }
 
@@ -75,7 +75,7 @@ public class BenchmarkDB implements AutoCloseable {
         createAccountStatement.addBatch();
 
         if (commit) {
-            createAccountStatement.executeLargeBatch();
+            createAccountStatement.executeBatch();
         }
     }
 
@@ -89,7 +89,7 @@ public class BenchmarkDB implements AutoCloseable {
         createTellerStatement.addBatch();
 
         if (commit) {
-            createTellerStatement.executeLargeBatch();
+            createTellerStatement.executeBatch();
         }
     }
 
