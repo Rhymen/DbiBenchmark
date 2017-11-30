@@ -3,8 +3,8 @@ package db;
 import java.sql.*;
 
 public class BenchmarkDB implements AutoCloseable {
-    public static final String URL = "jdbc:postgresql://192.168.0.215/CAP";
-    public static final String USER = "postgres";
+    public static final String URL = "jdbc:postgresql://192.168.0.215/ntps";
+    public static final String USER = "dbi";
     public static final String PASS = "dbidbi";
 
     private Connection conn;
@@ -26,7 +26,7 @@ public class BenchmarkDB implements AutoCloseable {
 
             for (int i = 1, l = n * 10; i <= l; i++) {
                 int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createAccount(i, branchId);
+                createTeller(i, branchId);
             }
         } catch(SQLException ex) {
             ex.printStackTrace();
@@ -37,30 +37,30 @@ public class BenchmarkDB implements AutoCloseable {
         final String sql = "" +
                 "INSERT INTO branches" +
                 "(branchid, branchname, balance, address)" +
-                "VALUES(" + id + ", aaaaaaaaaaaaaaaaaaaa, 0, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)";
+                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
         final Statement stmt = conn.createStatement();
-        stmt.executeQuery(sql);
+        stmt.execute(sql);
     }
 
     public void createAccount(int id, int branchId) throws SQLException {
         final String sql = "" +
                 "INSERT INTO accounts" +
                 "(accid, name, balance, branchid, address)" +
-                "VALUES(" + id + ", aaaaaaaaaaaaaaaaaaaa, 0, " + branchId + ", aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)";
+                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
         final Statement stmt = conn.createStatement();
-        stmt.executeQuery(sql);
+        stmt.execute(sql);
     }
 
     public void createTeller(int id, int branchId) throws SQLException {
         final String sql = "" +
                 "INSERT INTO tellers" +
                 "(tellerid, tellername, balance, branchid, address)" +
-                "VALUES(" + id + ", aaaaaaaaaaaaaaaaaaaa, 0, " + branchId + ", aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)";
+                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
 
         final Statement stmt = conn.createStatement();
-        stmt.executeQuery(sql);
+        stmt.execute(sql);
     }
 
     @Override
