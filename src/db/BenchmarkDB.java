@@ -19,7 +19,7 @@ public class BenchmarkDB implements AutoCloseable {
                 createBranch(i);
             }
 
-            for (int i = 1, l = n * 10000; i <= l; i++) {
+            for (int i = 1, l = n * 100000; i <= l; i++) {
                 int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
                 createAccount(i, branchId);
             }
