@@ -15,52 +15,57 @@ public class BenchmarkDB implements AutoCloseable {
 
     public void createDatabase(int n) {
         try {
-            for (int i = 1; i <= n; i++) {
-                createBranch(i);
-            }
-
-            for (int i = 1, l = n * 100000; i <= l; i++) {
-                int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createAccount(i, branchId);
-            }
-
-            for (int i = 1, l = n * 10; i <= l; i++) {
-                int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createTeller(i, branchId);
-            }
+            createBranch(n);
+            createAccount(n*100000, n);
+            createTeller(n*10, n);
         } catch(SQLException ex) {
             ex.printStackTrace();
         }
     }
 
     public void createBranch(int id) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO branches" +
-                "(branchid, branchname, balance, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
-
         final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+
+        for(int i = 1; i <= id; i++){
+            final String sql = "" +
+                    "INSERT INTO branches" +
+                    "(branchid, branchname, balance, address)" +
+                    "VALUES(" + i + ", 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+
+            stmt.addBatch(sql);
+        }
+        stmt.executeBatch();
     }
 
-    public void createAccount(int id, int branchId) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO accounts" +
-                "(accid, name, balance, branchid, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
-
+    public void createAccount(int id, int n) throws SQLException {
         final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        for(int i = 1; i < id; i++){
+            int branchId = (int) (Math.random() * ((n - 1) + 1));
+            final String sql = "" +
+                    "INSERT INTO accounts" +
+                    "(accid, name, balance, branchid, address)" +
+                    "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+            stmt.addBatch(sql);
+
+            if(i%1000 == 0){
+                stmt.executeBatch();
+            }
+        }
+        stmt.executeBatch();
     }
 
-    public void createTeller(int id, int branchId) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO tellers" +
-                "(tellerid, tellername, balance, branchid, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
-
+    public void createTeller(int id, int n) throws SQLException {
         final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        for(int i = 1; i < id; i++){
+            int branchId = (int) (Math.random() * ((n - 1) + 1));
+            final String sql = "" +
+                    "INSERT INTO tellers" +
+                    "(tellerid, tellername, balance, branchid, address)" +
+                    "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+            stmt.addBatch(sql);
+        }
+
+        stmt.executeBatch();
     }
 
     @Override
