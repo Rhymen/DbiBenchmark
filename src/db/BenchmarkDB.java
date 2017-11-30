@@ -35,56 +35,62 @@ public class BenchmarkDB implements AutoCloseable {
     public void createDatabase(int n) {
         try {
             for (int i = 1; i <= n; i++) {
-                createBranch(i);
+                createBranch(i, i == n);
             }
 
             for (int i = 1, l = n * 100000; i <= l; i++) {
                 int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createAccount(i, branchId);
+                createAccount(i, branchId, i == l);
             }
 
             for (int i = 1, l = n * 10; i <= l; i++) {
                 int branchId = 1 + (int)(Math.random() * ((n - 1) + 1));
-                createTeller(i, branchId);
+                createTeller(i, branchId, i == l);
             }
         } catch(SQLException ex) {
             ex.printStackTrace();
         }
     }
 
-    public void createBranch(int id) throws SQLException {
+    public void createBranch(int id, boolean commit) throws SQLException {
         if (createBranchStatement == null) {
             createBranchStatement = conn.prepareStatement(CREATE_BRANCH_SQL);
-        } else {
-            createBranchStatement.clearParameters();
         }
 
         createBranchStatement.setInt(1, id);
-        createBranchStatement.execute();
+        createBranchStatement.addBatch();
+
+        if (commit) {
+            createBranchStatement.executeLargeBatch();
+        }
     }
 
-    public void createAccount(int id, int branchId) throws SQLException {
+    public void createAccount(int id, int branchId, boolean commit) throws SQLException {
         if (createAccountStatement == null) {
             createAccountStatement = conn.prepareStatement(CREATE_ACCOUNT_SQL);
-        } else {
-            createAccountStatement.clearParameters();
         }
 
         createAccountStatement.setInt(1, id);
         createAccountStatement.setInt(2, branchId);
-        createAccountStatement.execute();
+        createAccountStatement.addBatch();
+
+        if (commit) {
+            createAccountStatement.executeLargeBatch();
+        }
     }
 
-    public void createTeller(int id, int branchId) throws SQLException {
+    public void createTeller(int id, int branchId, boolean commit) throws SQLException {
         if (createTellerStatement == null) {
             createTellerStatement = conn.prepareStatement(CREATE_TELLER_SQL);
-        } else {
-            createTellerStatement.clearParameters();
         }
 
         createTellerStatement.setInt(1, id);
         createTellerStatement.setInt(2, branchId);
-        createTellerStatement.execute();
+        createTellerStatement.addBatch();
+
+        if (commit) {
+            createTellerStatement.executeLargeBatch();
+        }
     }
 
     @Override
