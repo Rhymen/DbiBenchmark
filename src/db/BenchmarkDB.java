@@ -7,7 +7,26 @@ public class BenchmarkDB implements AutoCloseable {
     public static final String USER = "dbi";
     public static final String PASS = "dbidbi";
 
+    private static final String CREATE_BRANCH_SQL =
+            "INSERT INTO branches" +
+            "(branchid, branchname, balance, address)" +
+            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+
+    private static final String CREATE_ACCOUNT_SQL =
+            "INSERT INTO accounts" +
+            "(accid, name, balance, branchid, address)" +
+            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+
+    private static final String CREATE_TELLER_SQL =
+            "INSERT INTO tellers" +
+            "(tellerid, tellername, balance, branchid, address)" +
+            "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+
     private Connection conn;
+    private PreparedStatement createBranchStatement;
+    private PreparedStatement createAccountStatement;
+    private PreparedStatement createTellerStatement;
+
 
     public BenchmarkDB() throws SQLException {
         conn = DriverManager.getConnection(URL, USER, PASS);
@@ -34,33 +53,38 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     public void createBranch(int id) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO branches" +
-                "(branchid, branchname, balance, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+        if (createBranchStatement == null) {
+            createBranchStatement = conn.prepareStatement(CREATE_BRANCH_SQL);
+        } else {
+            createBranchStatement.clearParameters();
+        }
 
-        final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        createBranchStatement.setInt(1, id);
+        createBranchStatement.execute();
     }
 
     public void createAccount(int id, int branchId) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO accounts" +
-                "(accid, name, balance, branchid, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+        if (createAccountStatement == null) {
+            createAccountStatement = conn.prepareStatement(CREATE_ACCOUNT_SQL);
+        } else {
+            createAccountStatement.clearParameters();
+        }
 
-        final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        createTellerStatement.setInt(1, id);
+        createTellerStatement.setInt(2, branchId);
+        createTellerStatement.execute();
     }
 
     public void createTeller(int id, int branchId) throws SQLException {
-        final String sql = "" +
-                "INSERT INTO tellers" +
-                "(tellerid, tellername, balance, branchid, address)" +
-                "VALUES(" + id + ", 'aaaaaaaaaaaaaaaaaaaa', 0, " + branchId + ", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+        if (createTellerStatement == null) {
+            createTellerStatement = conn.prepareStatement(CREATE_TELLER_SQL);
+        } else {
+            createTellerStatement.clearParameters();
+        }
 
-        final Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        createTellerStatement.setInt(1, id);
+        createTellerStatement.setInt(2, branchId);
+        createTellerStatement.execute();
     }
 
     @Override
