@@ -70,9 +70,9 @@ public class BenchmarkDB implements AutoCloseable {
             createAccountStatement.clearParameters();
         }
 
-        createTellerStatement.setInt(1, id);
-        createTellerStatement.setInt(2, branchId);
-        createTellerStatement.execute();
+        createAccountStatement.setInt(1, id);
+        createAccountStatement.setInt(2, branchId);
+        createAccountStatement.execute();
     }
 
     public void createTeller(int id, int branchId) throws SQLException {
