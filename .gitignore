@@ -91,4 +91,8 @@ fabric.properties
 hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,intellij
+
 \.idea/checkstyle-idea\.xml
+
+# Include jar files in lib folder
+!lib/**/*.jar
