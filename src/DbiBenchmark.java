@@ -5,10 +5,12 @@ import java.time.Instant;
 
 public class DbiBenchmark {
     public static void main(String[] args) {
-        try {
-            BenchmarkDB db = new BenchmarkDB();
+        String ip = args[0];
+        int n = Integer.parseInt(args[1]);
+
+        try (BenchmarkDB db = new BenchmarkDB(ip)) {
             Instant starts = Instant.now();
-            db.createDatabase(10);
+            db.createDatabase(n);
             Instant ends = Instant.now();
             System.out.println(Duration.between(starts, ends));
         } catch(Exception ex) {

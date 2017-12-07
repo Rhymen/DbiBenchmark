@@ -3,24 +3,23 @@ package db;
 import java.sql.*;
 
 public class BenchmarkDB implements AutoCloseable {
-    public static final String URL = "jdbc:postgresql://192.168.0.215/ntps";
-    public static final String USER = "dbi";
+    public static final String USER = "postgres";
     public static final String PASS = "dbidbi";
 
     private static final String CREATE_BRANCH_SQL =
             "INSERT INTO branches" +
                     "(branchid, branchname, balance, address)" +
-                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "VALUES(?, ?, ?, ?)";
 
     private static final String CREATE_ACCOUNT_SQL =
             "INSERT INTO accounts" +
                     "(accid, name, balance, branchid, address)" +
-                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "VALUES(?, ?, ?, ?, ?)";
 
     private static final String CREATE_TELLER_SQL =
             "INSERT INTO tellers" +
                     "(tellerid, tellername, balance, branchid, address)" +
-                    "VALUES(?, 'aaaaaaaaaaaaaaaaaaaa', 0, ?, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')";
+                    "VALUES(?, ?, ?, ?, ?)";
 
     private Connection conn;
     private PreparedStatement createBranchStatement;
@@ -28,67 +27,73 @@ public class BenchmarkDB implements AutoCloseable {
     private PreparedStatement createTellerStatement;
 
 
-    public BenchmarkDB() throws SQLException {
-        conn = DriverManager.getConnection(URL, USER, PASS);
+    public BenchmarkDB(String ip) throws SQLException {
+        conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", USER, PASS);
     }
 
-    public void createDatabase(int n) {
-        try {
-            for (int i = 1; i <= n; i++) {
-                createBranch(i, i == n);
-            }
+    public void createDatabase(int n) throws SQLException {
+        for (int i = 1, l = n; i <= l; i++) {
+            createBranch(i, i == l);
+        }
 
-            for (int i = 1, l = n * 100000; i <= l; i++) {
-                int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
-                createAccount(i, branchId, i % Integer.MAX_VALUE == 0 || i == l);
-            }
+        for (int i = 1, l = n * 100000; i <= l; i++) {
+            int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
+            createAccount(i, branchId, i == l);
+        }
 
-            for (int i = 1, l = n * 10; i <= l; i++) {
-                int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
-                createTeller(i, branchId, i == l);
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+        for (int i = 1, l = n * 10; i <= l; i++) {
+            int branchId = 1 + (int) (Math.random() * ((n - 1) + 1));
+            createTeller(i, branchId, i == l);
         }
     }
 
-    public void createBranch(int id, boolean commit) throws SQLException {
+    public void createBranch(int id, boolean execute) throws SQLException {
         if (createBranchStatement == null) {
             createBranchStatement = conn.prepareStatement(CREATE_BRANCH_SQL);
         }
 
         createBranchStatement.setInt(1, id);
+        createBranchStatement.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+        createBranchStatement.setInt(3, 0);
+        createBranchStatement.setString(4, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         createBranchStatement.addBatch();
 
-        if (commit) {
+        if (execute) {
             createBranchStatement.executeBatch();
         }
     }
 
-    public void createAccount(int id, int branchId, boolean commit) throws SQLException {
+    public void createAccount(int id, int branchId, boolean execute) throws SQLException {
         if (createAccountStatement == null) {
             createAccountStatement = conn.prepareStatement(CREATE_ACCOUNT_SQL);
         }
 
         createAccountStatement.setInt(1, id);
-        createAccountStatement.setInt(2, branchId);
+        createBranchStatement.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+        createBranchStatement.setInt(3, 0);
+        createAccountStatement.setInt(4, branchId);
+        createBranchStatement.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         createAccountStatement.addBatch();
 
-        if (commit) {
+        if (execute) {
             createAccountStatement.executeBatch();
         }
     }
 
-    public void createTeller(int id, int branchId, boolean commit) throws SQLException {
+    public void createTeller(int id, int branchId, boolean execute) throws SQLException {
         if (createTellerStatement == null) {
             createTellerStatement = conn.prepareStatement(CREATE_TELLER_SQL);
         }
 
         createTellerStatement.setInt(1, id);
-        createTellerStatement.setInt(2, branchId);
+        createBranchStatement.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+        createBranchStatement.setInt(3, 0);
+        createTellerStatement.setInt(4, branchId);
+        createBranchStatement.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
         createTellerStatement.addBatch();
 
-        if (commit) {
+        if (execute) {
             createTellerStatement.executeBatch();
         }
     }
