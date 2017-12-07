@@ -13,7 +13,7 @@ public class DbiBenchmark {
             db.createDatabase(n);
             Instant ends = Instant.now();
             System.out.println(Duration.between(starts, ends));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
