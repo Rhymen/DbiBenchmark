@@ -3,8 +3,8 @@ package db;
 import java.sql.*;
 
 public class BenchmarkDB implements AutoCloseable {
-    public static final String URL = "jdbc:postgresql://192.168.0.215/ntps";
-    public static final String USER = "dbi";
+    public static final String URL = "jdbc:postgresql://localhost/ntps";
+    public static final String USER = "postgres";
     public static final String PASS = "dbidbi";
 
     private static final String CREATE_BRANCH_SQL =
