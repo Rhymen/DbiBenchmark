@@ -9,6 +9,7 @@ public class DbiBenchmark {
         int n = Integer.parseInt(args[1]);
 
         try (BenchmarkDB db = new BenchmarkDB(ip)) {
+            db.emptyDatabase();
             Instant starts = Instant.now();
             db.createDatabase(n);
             Instant ends = Instant.now();

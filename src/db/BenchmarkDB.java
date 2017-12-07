@@ -20,7 +20,20 @@ public class BenchmarkDB implements AutoCloseable {
         conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", USER, PASS);
     }
 
+    public void emptyDatabase() {
+        try {
+            conn.createStatement()
+                    .execute("TRUNCATE accounts CASCADE;\n" +
+                            "TRUNCATE tellers CASCADE;\n" +
+                            "TRUNCATE branches CASCADE;");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void createDatabase(int n) throws SQLException, InterruptedException {
+        dropKeys();
+
         setTableLog(false);
 
         Thread branchThread = new Thread(() -> createBranches(n));
@@ -39,6 +52,35 @@ public class BenchmarkDB implements AutoCloseable {
         tellerThread.join();
 
         setTableLog(true);
+
+        createKeys();
+    }
+
+    private void createKeys() {
+        try {
+            conn.createStatement()
+                    .execute("ALTER TABLE accounts ADD PRIMARY KEY (accid);\n" +
+                            "ALTER TABLE branches ADD PRIMARY KEY (branchid);\n" +
+                            "ALTER TABLE tellers ADD PRIMARY KEY (tellerid);\n" +
+                            "ALTER TABLE accounts ADD FOREIGN KEY (branchid) REFERENCES branches;\n" +
+                            "ALTER TABLE tellers ADD FOREIGN KEY (branchid) REFERENCES branches;\n" +
+                            "ALTER TABLE history ADD FOREIGN KEY (accid) REFERENCES accounts,\n" +
+                            "  ADD FOREIGN KEY (branchid) REFERENCES branches,\n" +
+                            "  ADD FOREIGN KEY (tellerid) REFERENCES tellers;");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dropKeys() {
+        try {
+            conn.createStatement()
+                    .execute("ALTER TABLE accounts DROP CONSTRAINT accounts_pkey CASCADE;\n" +
+                            "ALTER TABLE branches DROP CONSTRAINT branches_pkey CASCADE;\n" +
+                            "ALTER TABLE tellers DROP CONSTRAINT tellers_pkey CASCADE;");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setTableLog(boolean logged) {
