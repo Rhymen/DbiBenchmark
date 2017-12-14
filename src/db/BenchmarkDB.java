@@ -22,7 +22,7 @@ public class BenchmarkDB implements AutoCloseable {
      * @param ip The database ip (localhost / 192.168.122.36)
      * @param user Database username
      * @param password Database password
-     * @throws SQLException
+     * @throws SQLException Database error occurred
      */
     public BenchmarkDB(String ip, String user, String password) throws SQLException {
         conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", user, password);
@@ -41,7 +41,7 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     * @param n
+     * @param n Scalingfactor
      * @throws InvalidParameterException Checks if n is valid (because of multithreading)
      * @throws SQLException Database error occurred
      * @throws InterruptedException If any thread has interrupted the current thread
@@ -113,7 +113,7 @@ public class BenchmarkDB implements AutoCloseable {
      * @param logged The logged status of the tables
      * @throws SQLException Database error occurred
      */
-    public void setTableLog(boolean logged) throws SQLException {
+    private void setTableLog(boolean logged) throws SQLException {
         String sql = logged ? (
                 "ALTER TABLE branches SET LOGGED; " +
                         "ALTER TABLE tellers SET LOGGED; " +
@@ -132,9 +132,9 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all branch tuples.
-     * @param n
+     * @param n Scalingfactor
      */
-    public void createBranches(int n) {
+    private void createBranches(int n) {
         try {
             CopyManager copyAPI = ((PGConnection) conn).getCopyAPI();
             CopyIn in = copyAPI.copyIn("COPY branches FROM STDIN WITH DELIMITER ','");
@@ -161,11 +161,11 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all account tuples. The parameters from and to are used for multithreading.
-     * @param n
+     * @param n Scalingfactor
      * @param from start of the ids
      * @param to end of the ids
      */
-    public void createAccounts(int n, int from, int to) {
+    private void createAccounts(int n, int from, int to) {
         try {
             CopyManager copyAPI = ((PGConnection) conn).getCopyAPI();
             CopyIn in = copyAPI.copyIn("COPY accounts FROM STDIN WITH DELIMITER ','");
@@ -194,9 +194,9 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all teller tuples.
-     * @param n
+     * @param n Scalingfactor
      */
-    public void createTellers(int n) {
+    private void createTellers(int n) {
         try {
             CopyManager copyAPI = ((PGConnection) conn).getCopyAPI();
             CopyIn in = copyAPI.copyIn("COPY tellers FROM STDIN WITH DELIMITER ','");
