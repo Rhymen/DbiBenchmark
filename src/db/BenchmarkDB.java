@@ -11,37 +11,40 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- *
+ * Class to establish a connection to the database and interact with it.
  */
 public class BenchmarkDB implements AutoCloseable {
-    public static final String USER = "postgres";
-    public static final String PASS = "dbidbi";
 
     private Connection conn;
 
     /**
-     * @param ip
+     * Initializes a connection to the database
+     * @param ip The database ip (localhost / 192.168.122.36)
+     * @param user Database username
+     * @param password Database password
      * @throws SQLException
      */
-    public BenchmarkDB(String ip) throws SQLException {
-        conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", USER, PASS);
+    public BenchmarkDB(String ip, String user, String password) throws SQLException {
+        conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", user, password);
     }
 
     /**
-     * @throws SQLException
+     * Removes all data from the database
+     * @throws SQLException Database error occurred
      */
     public void clearDatabase() throws SQLException {
         conn.createStatement()
                 .execute("TRUNCATE accounts CASCADE;\n" +
                         "TRUNCATE tellers CASCADE;\n" +
-                        "TRUNCATE branches CASCADE;");
+                        "TRUNCATE branches CASCADE;\n" +
+                        "TRUNCATE history CASCADE;");
     }
 
     /**
      * @param n
-     * @throws InvalidParameterException
-     * @throws SQLException
-     * @throws InterruptedException
+     * @throws InvalidParameterException Checks if n is valid (because of multithreading)
+     * @throws SQLException Database error occurred
+     * @throws InterruptedException If any thread has interrupted the current thread
      */
     public void createDatabase(int n) throws InvalidParameterException, SQLException, InterruptedException {
         if ((0 < n && n < 5) || n % 5 != 0) {
@@ -79,7 +82,8 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     * @throws SQLException
+     * Adds all constraints (primary / foreign keys) to the tables
+     * @throws SQLException Database error occurred
      */
     private void addKeyConstraints() throws SQLException {
         conn.createStatement()
@@ -94,7 +98,8 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     * @throws SQLException
+     * Removes all constraints (primary / foreign keys) from the tables
+     * @throws SQLException Database error occurred
      */
     private void removeKeyConstraints() throws SQLException {
         conn.createStatement()
@@ -104,8 +109,9 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     * @param logged
-     * @throws SQLException
+     * Sets tables to unlogged/logged mode. If the tables are unlogged, they are not crash-safe.
+     * @param logged The logged status of the tables
+     * @throws SQLException Database error occurred
      */
     public void setTableLog(boolean logged) throws SQLException {
         String sql = logged ? (
@@ -125,6 +131,7 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
+     * Create all branch tuples.
      * @param n
      */
     public void createBranches(int n) {
@@ -153,9 +160,10 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     #* @param n
-     * @param from
-     * @param to
+     * Create all account tuples. The parameters from and to are used for multithreading.
+     * @param n
+     * @param from start of the ids
+     * @param to end of the ids
      */
     public void createAccounts(int n, int from, int to) {
         try {
@@ -185,6 +193,7 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
+     * Create all teller tuples.
      * @param n
      */
     public void createTellers(int n) {
@@ -215,7 +224,8 @@ public class BenchmarkDB implements AutoCloseable {
     }
 
     /**
-     * @throws SQLException
+     * Close the connection when the try-with-resources statement ends
+     * @throws SQLException Database error occurred
      */
     @Override
     public void close() throws SQLException {

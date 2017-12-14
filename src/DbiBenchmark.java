@@ -8,7 +8,7 @@ public class DbiBenchmark {
         String ip = args[0];
         int n = Integer.parseInt(args[1]);
 
-        try (BenchmarkDB db = new BenchmarkDB(ip)) {
+        try (BenchmarkDB db = new BenchmarkDB(ip, "postgres", "dbidbi")) {
             db.clearDatabase();
             
             Instant starts = Instant.now();
