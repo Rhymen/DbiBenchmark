@@ -20,7 +20,7 @@ public class BenchmarkDB implements AutoCloseable {
         conn = DriverManager.getConnection("jdbc:postgresql://" + ip + "/ntps", USER, PASS);
     }
 
-    public void emptyDatabase() {
+    public void clearDatabase() {
         try {
             conn.createStatement()
                     .execute("TRUNCATE accounts CASCADE;\n" +
@@ -37,18 +37,24 @@ public class BenchmarkDB implements AutoCloseable {
         setTableLog(false);
 
         Thread branchThread = new Thread(() -> createBranches(n));
-        Thread accountsThread = new Thread(() -> createAccounts(n, 1, n * 50000));
-        Thread accountsThread2 = new Thread(() -> createAccounts(n, n * 50000 + 1, n * 100000));
-        Thread tellerThread = new Thread(() -> createTellers(n));
-
         branchThread.start();
-        accountsThread.start();
-        accountsThread2.start();
+
+        Thread[] accountThreads = new Thread[n / 5];
+        for (int i = 0; i < n / 5; i++) {
+            final int from = i * 100000 * 5 + 1;
+            final int to = (i + 1) * 100000 * 5;
+            accountThreads[i] = new Thread(() -> createAccounts(n, from, to));
+            accountThreads[i].start();
+        }
+
+        Thread tellerThread = new Thread(() -> createTellers(n));
         tellerThread.start();
 
+
         branchThread.join();
-        accountsThread.join();
-        accountsThread2.join();
+        for (int i = 0; i < n / 5; i++) {
+            accountThreads[i].join();
+        }
         tellerThread.join();
 
         setTableLog(true);
