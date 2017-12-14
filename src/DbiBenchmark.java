@@ -14,6 +14,7 @@ public class DbiBenchmark {
             Instant starts = Instant.now();
             db.createDatabase(n);
             Instant ends = Instant.now();
+
             System.out.println(Duration.between(starts, ends));
         } catch (Exception ex) {
             ex.printStackTrace();
