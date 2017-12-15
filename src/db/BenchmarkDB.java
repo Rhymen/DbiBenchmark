@@ -19,8 +19,9 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Initializes a connection to the database
-     * @param ip The database ip (localhost / 192.168.122.36)
-     * @param user Database username
+     *
+     * @param ip       The database ip (localhost / 192.168.122.36)
+     * @param user     Database username
      * @param password Database password
      * @throws SQLException Database error occurred
      */
@@ -30,6 +31,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Removes all data from the database
+     *
      * @throws SQLException Database error occurred
      */
     public void clearDatabase() throws SQLException {
@@ -43,11 +45,11 @@ public class BenchmarkDB implements AutoCloseable {
     /**
      * @param n Scalingfactor
      * @throws InvalidParameterException Checks if n is valid (because of multithreading)
-     * @throws SQLException Database error occurred
-     * @throws InterruptedException If any thread has interrupted the current thread
+     * @throws SQLException              Database error occurred
+     * @throws InterruptedException      If any thread has interrupted the current thread
      */
     public void createDatabase(int n) throws InvalidParameterException, SQLException, InterruptedException {
-        if ((0 < n && n < 5) || n % 5 != 0) {
+        if (!(0 < n && n < 5) && n % 5 != 0) {
             throw new InvalidParameterException("Parameter violation\nn must be 0 < n < 5 || n % 5 == 0");
         }
 
@@ -64,7 +66,7 @@ public class BenchmarkDB implements AutoCloseable {
         int threadFactor = n < 5 ? n : 5;
 
         accountThreads = new Thread[n / threadFactor];
-        for (int i = 0; i < n / 5; i++) {
+        for (int i = 0; i < n / threadFactor; i++) {
             final int from = i * 100000 * threadFactor + 1;
             final int to = (i + 1) * 100000 * threadFactor;
             accountThreads[i] = new Thread(() -> createAccounts(n, from, to));
@@ -83,6 +85,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Adds all constraints (primary / foreign keys) to the tables
+     *
      * @throws SQLException Database error occurred
      */
     private void addKeyConstraints() throws SQLException {
@@ -99,6 +102,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Removes all constraints (primary / foreign keys) from the tables
+     *
      * @throws SQLException Database error occurred
      */
     private void removeKeyConstraints() throws SQLException {
@@ -110,6 +114,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Sets tables to unlogged/logged mode. If the tables are unlogged, they are not crash-safe.
+     *
      * @param logged The logged status of the tables
      * @throws SQLException Database error occurred
      */
@@ -132,6 +137,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all branch tuples.
+     *
      * @param n Scalingfactor
      */
     private void createBranches(int n) {
@@ -161,9 +167,10 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all account tuples. The parameters from and to are used for multithreading.
-     * @param n Scalingfactor
+     *
+     * @param n    Scalingfactor
      * @param from start of the ids
-     * @param to end of the ids
+     * @param to   end of the ids
      */
     private void createAccounts(int n, int from, int to) {
         try {
@@ -194,6 +201,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Create all teller tuples.
+     *
      * @param n Scalingfactor
      */
     private void createTellers(int n) {
@@ -225,6 +233,7 @@ public class BenchmarkDB implements AutoCloseable {
 
     /**
      * Close the connection when the try-with-resources statement ends
+     *
      * @throws SQLException Database error occurred
      */
     @Override
